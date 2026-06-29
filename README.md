@@ -1,8 +1,6 @@
 # ZenMala
 
-Recovered Expo Router app from the Emergent preview at:
-
-https://prayer-beads-22.preview.emergentagent.com/
+A meditation counter app built with Expo Router.
 
 ## Run
 
@@ -15,4 +13,3 @@ npm run web
 
 - `app/` - Expo Router screens
 - `src/` - theme, storage, and hooks
-- `raw/` - original fetched HTML, Metro bundle, and source map from the preview
