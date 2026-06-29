@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "export:web": "expo export --platform web --clear && node scripts/prepare-pwa-export.js",
-    "export:github": "EXPO_PUBLIC_BASE_PATH=/Mala-Chanter-Emergent expo export --platform web --clear --base-path /Mala-Chanter-Emergent && node scripts/prepare-pwa-export.js",
+    "export:github": "EXPO_BASE_URL=/Mala-Chanter-Emergent expo export --platform web --clear && node scripts/prepare-pwa-export.js /Mala-Chanter-Emergent",
     "check:pwa": "node scripts/check-pwa.js",
     "typecheck": "tsc --noEmit"
   },

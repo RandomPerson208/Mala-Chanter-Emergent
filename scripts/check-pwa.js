@@ -25,6 +25,7 @@ assert(manifest.scope === './', 'Manifest scope should stay relative for GitHub 
 assert(sw.includes('CACHE_NAME'), 'Service worker should define a cache name.');
 assert(sw.includes('./manifest.webmanifest'), 'Service worker should cache manifest.webmanifest.');
 assert(sw.includes('./index.html'), 'Service worker should cache index.html.');
+new Function(sw);
 
 for (const icon of manifest.icons || []) {
   assert(fs.existsSync(path.join(publicDir, icon.src)), `Missing manifest icon: ${icon.src}`);
@@ -43,6 +44,24 @@ if (fs.existsSync(distDir)) {
   assert(html.includes('serviceWorker'), 'Exported HTML should register the service worker.');
   assert(fs.existsSync(path.join(distDir, '404.html')), 'dist/404.html should exist for SPA routing.');
   assert(fs.existsSync(path.join(distDir, 'sw.js')), 'dist/sw.js should be copied from public.');
+
+  const basePath = html.match(/var basePath = "([^"]*)"/)?.[1] || '';
+  if (basePath) {
+    assert(html.includes(`${basePath}/_expo/`), 'Exported HTML should prefix Expo assets for GitHub Pages.');
+    const jsFiles = [];
+    const pending = [path.join(distDir, '_expo')];
+    while (pending.length) {
+      const current = pending.pop();
+      if (!fs.existsSync(current)) continue;
+      for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+        const entryPath = path.join(current, entry.name);
+        if (entry.isDirectory()) pending.push(entryPath);
+        if (entry.isFile() && entry.name.endsWith('.js')) jsFiles.push(entryPath);
+      }
+    }
+    const bundle = jsFiles.map(read).join('\n');
+    assert(bundle.includes(`"${basePath}"`), 'Expo Router bundle should include the GitHub Pages base path.');
+  }
 }
 
 console.log('PWA manifest, icons, service worker, and export fallback look good.');
