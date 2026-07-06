@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#141311" />
+    <meta
+      name="description"
+      content="Offline mala counter for mantra practice, installable as a PWA or packaged with Capacitor."
+    />
+    <title>ZenMala</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./favicon.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <button class="icon-button" type="button" data-open-settings aria-label="Open settings">
+          <span aria-hidden="true">⚙</span>
+        </button>
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <h1>ZenMala</h1>
+        </div>
+        <button class="icon-button hidden" type="button" data-install-app aria-label="Install app">
+          <span aria-hidden="true">↓</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="view is-active" id="view-counter" data-view="counter" aria-label="Counter">
+          <div class="counter-wrap">
+            <button class="count-ring" type="button" data-count-button aria-label="Count one bead">
+              <span class="ring-inner">
+                <span class="micro-label">BEAD</span>
+                <strong data-current-count>0</strong>
+                <span data-bead-total>of 108</span>
+              </span>
+            </button>
+
+            <button class="mantra-pill" type="button" data-open-mantra-picker>
+              <span data-active-mantra-deva></span>
+              <strong data-active-mantra-name>Om Namah Shivaya</strong>
+              <small>CHANGE</small>
+            </button>
+
+            <div class="action-bar" aria-label="Counter actions">
+              <button type="button" data-reset-count aria-label="Reset count">
+                <span aria-hidden="true">↻</span>
+                <span>Reset</span>
+              </button>
+              <button type="button" data-open-edit-count aria-label="Edit count">
+                <span aria-hidden="true">✎</span>
+                <span>Edit</span>
+              </button>
+              <button type="button" data-count-plus aria-label="Add one bead">
+                <span aria-hidden="true">+</span>
+                <span>One</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="view scroll-view" id="view-mantras" data-view="mantras" aria-label="Mantras">
+          <div class="section-heading">
+            <span>LIBRARY</span>
+            <h2>Mantras</h2>
+            <button class="primary-icon-button" type="button" data-open-add-mantra aria-label="Add mantra">
+              <span aria-hidden="true">+</span>
+            </button>
+          </div>
+          <div class="list-stack" data-mantra-list></div>
+        </section>
+
+        <section class="view scroll-view" id="view-stats" data-view="stats" aria-label="Stats">
+          <div class="section-heading compact">
+            <span>YOUR JOURNEY</span>
+            <h2>Stats</h2>
+          </div>
+          <div class="stat-hero">
+            <span class="flame" aria-hidden="true"></span>
+            <strong data-streak>0</strong>
+            <span>day streak</span>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-tile">
+              <strong data-total-malas>0</strong>
+              <span>Malas</span>
+            </div>
+            <div class="stat-tile">
+              <strong data-total-beads>0</strong>
+              <span>Beads</span>
+            </div>
+          </div>
+          <h3 class="subheading">This week</h3>
+          <div class="chart" data-weekly-chart></div>
+          <div class="empty-state hidden" data-stats-empty>
+            <strong>Begin your practice</strong>
+            <span>Complete your first mala to see your progress here.</span>
+          </div>
+        </section>
+
+        <section class="view scroll-view" id="view-history" data-view="history" aria-label="History">
+          <div class="section-heading">
+            <span>JOURNAL</span>
+            <h2>History</h2>
+            <button class="icon-button" type="button" data-clear-history aria-label="Clear history">
+              <span aria-hidden="true">⌫</span>
+            </button>
+          </div>
+          <div class="history-list" data-history-list></div>
+          <div class="empty-state" data-history-empty>
+            <strong>No malas yet</strong>
+            <span>Your completed mala sessions will appear here.</span>
+          </div>
+        </section>
+      </main>
+
+      <nav class="tabbar" aria-label="Main navigation">
+        <button class="is-active" type="button" data-tab="counter" aria-label="Counter">
+          <span aria-hidden="true">●</span>
+          <span>Count</span>
+        </button>
+        <button type="button" data-tab="mantras" aria-label="Mantras">
+          <span aria-hidden="true">☰</span>
+          <span>Mantras</span>
+        </button>
+        <button type="button" data-tab="stats" aria-label="Stats">
+          <span aria-hidden="true">▥</span>
+          <span>Stats</span>
+        </button>
+        <button type="button" data-tab="history" aria-label="History">
+          <span aria-hidden="true">◷</span>
+          <span>History</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="modal-backdrop hidden" data-modal="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <section class="modal-sheet">
+        <header>
+          <h2 id="settings-title">Settings</h2>
+          <button class="icon-button" type="button" data-close-modal aria-label="Close settings">
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        <label class="toggle-row">
+          <span>Haptic feedback</span>
+          <input type="checkbox" data-setting-haptics />
+        </label>
+        <label class="toggle-row">
+          <span>Sound on tap</span>
+          <input type="checkbox" data-setting-sound />
+        </label>
+      </section>
+    </div>
+
+    <div class="modal-backdrop hidden" data-modal="edit-count" role="dialog" aria-modal="true" aria-labelledby="edit-count-title">
+      <section class="modal-sheet">
+        <header>
+          <h2 id="edit-count-title">Edit Count</h2>
+          <button class="icon-button" type="button" data-close-modal aria-label="Close edit count">
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        <form data-edit-count-form>
+          <label class="field-label" for="edit-count-input">Count</label>
+          <input id="edit-count-input" name="count" type="number" min="0" max="107" inputmode="numeric" data-edit-count-input />
+          <button class="wide-primary" type="submit">Save</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-backdrop hidden" data-modal="mantra-picker" role="dialog" aria-modal="true" aria-labelledby="picker-title">
+      <section class="modal-sheet tall">
+        <header>
+          <h2 id="picker-title">Choose Mantra</h2>
+          <button class="icon-button" type="button" data-close-modal aria-label="Close mantra picker">
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        <div class="list-stack" data-picker-list></div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop hidden" data-modal="add-mantra" role="dialog" aria-modal="true" aria-labelledby="add-mantra-title">
+      <section class="modal-sheet">
+        <header>
+          <h2 id="add-mantra-title">Add Mantra</h2>
+          <button class="icon-button" type="button" data-close-modal aria-label="Close add mantra">
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        <form data-add-mantra-form>
+          <label class="field-label" for="new-mantra-name">Name</label>
+          <input id="new-mantra-name" name="name" type="text" autocomplete="off" required />
+          <label class="field-label" for="new-mantra-deva">Sanskrit / Devanagari</label>
+          <input id="new-mantra-deva" name="devanagari" type="text" autocomplete="off" />
+          <label class="field-label" for="new-mantra-meaning">Meaning</label>
+          <textarea id="new-mantra-meaning" name="meaning" rows="3"></textarea>
+          <button class="wide-primary" type="submit">Save Mantra</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="celebration hidden" data-celebration aria-live="polite">
+      <div>
+        <strong>Mala Complete</strong>
+        <span>108 beads chanted</span>
+      </div>
+    </div>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>

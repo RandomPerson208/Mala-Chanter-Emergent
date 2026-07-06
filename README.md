@@ -1,22 +1,23 @@
 # ZenMala
 
-A meditation counter app built with Expo Router.
+Offline mala counter PWA packaged with Capacitor.
 
 ## Run
 
 ```sh
 npm install
-npm run web
+npm start
 ```
 
-## PWA Build
+## PWA
 
 ```sh
-npm run export:web
 npm run check:pwa
 ```
 
-## Capacitor Native Apps
+The installable web app lives in `www/`.
+
+## Capacitor
 
 ```sh
 npm run cap:build
@@ -35,8 +36,6 @@ npm run generate:aab
 
 ## Repo Layout
 
-- `app/` - Expo Router screens
-- `src/` - theme, storage, and hooks
-- `public/` - PWA manifest, service worker, and install icons
+- `www/` - static app, PWA manifest, service worker, and icons
 - `ios/` - Capacitor iOS app
 - `android/` - Capacitor Android app

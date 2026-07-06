@@ -2,8 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const publicDir = path.join(root, 'public');
-const distDir = path.join(root, 'dist');
+const webDir = path.join(root, 'www');
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -13,55 +12,81 @@ function read(file) {
   return fs.readFileSync(file, 'utf8');
 }
 
-const manifestPath = path.join(publicDir, 'manifest.webmanifest');
-const swPath = path.join(publicDir, 'sw.js');
+const htmlPath = path.join(webDir, 'index.html');
+const manifestPath = path.join(webDir, 'manifest.webmanifest');
+const swPath = path.join(webDir, 'sw.js');
+const cssPath = path.join(webDir, 'styles.css');
+const jsPath = path.join(webDir, 'app.js');
+
+for (const file of [htmlPath, manifestPath, swPath, cssPath, jsPath]) {
+  assert(fs.existsSync(file), `Missing ${path.relative(root, file)}.`);
+}
+
+const html = read(htmlPath);
 const manifest = JSON.parse(read(manifestPath));
 const sw = read(swPath);
+const app = read(jsPath);
+const pkg = JSON.parse(read(path.join(root, 'package.json')));
 
 assert(manifest.name === 'ZenMala', 'Manifest name should be ZenMala.');
 assert(manifest.display === 'standalone', 'Manifest display should be standalone.');
 assert(manifest.start_url === './', 'Manifest start_url should stay relative for GitHub Pages.');
 assert(manifest.scope === './', 'Manifest scope should stay relative for GitHub Pages.');
+assert(html.includes('manifest.webmanifest'), 'HTML should link the web manifest.');
+assert(html.includes('./styles.css'), 'HTML should load styles.css.');
+assert(html.includes('./app.js'), 'HTML should load app.js.');
 assert(sw.includes('CACHE_NAME'), 'Service worker should define a cache name.');
 assert(sw.includes('./manifest.webmanifest'), 'Service worker should cache manifest.webmanifest.');
 assert(sw.includes('./index.html'), 'Service worker should cache index.html.');
+assert(sw.includes('./styles.css'), 'Service worker should cache styles.css.');
+assert(sw.includes('./app.js'), 'Service worker should cache app.js.');
+assert(app.includes('localStorage'), 'App should persist local practice data.');
+assert(app.includes('serviceWorker'), 'App should register the service worker.');
 new Function(sw);
+new Function(app);
 
 for (const icon of manifest.icons || []) {
-  assert(fs.existsSync(path.join(publicDir, icon.src)), `Missing manifest icon: ${icon.src}`);
+  assert(fs.existsSync(path.join(webDir, icon.src)), `Missing manifest icon: ${icon.src}`);
 }
 
 for (const shortcut of manifest.shortcuts || []) {
   assert(shortcut.url && shortcut.url.startsWith('./'), `Shortcut URL should be relative: ${shortcut.name}`);
   for (const icon of shortcut.icons || []) {
-    assert(fs.existsSync(path.join(publicDir, icon.src)), `Missing shortcut icon: ${icon.src}`);
+    assert(fs.existsSync(path.join(webDir, icon.src)), `Missing shortcut icon: ${icon.src}`);
   }
 }
 
-if (fs.existsSync(distDir)) {
-  const html = read(path.join(distDir, 'index.html'));
-  assert(html.includes('manifest.webmanifest'), 'Exported HTML should link the web manifest.');
-  assert(html.includes('serviceWorker'), 'Exported HTML should register the service worker.');
-  assert(fs.existsSync(path.join(distDir, '404.html')), 'dist/404.html should exist for SPA routing.');
-  assert(fs.existsSync(path.join(distDir, 'sw.js')), 'dist/sw.js should be copied from public.');
+const blockedNeedles = ['ex' + 'po', 'react' + '-' + 'native', 'emer' + 'gent'];
+const checkFiles = [
+  'package.json',
+  'capacitor.config.json',
+  'README.md',
+  '.github/workflows/deploy-pages.yml',
+  'www/index.html',
+  'www/styles.css',
+  'www/app.js',
+  'www/manifest.webmanifest',
+  'www/sw.js',
+];
 
-  const basePath = html.match(/var basePath = "([^"]*)"/)?.[1] || '';
-  if (basePath) {
-    assert(html.includes(`${basePath}/_expo/`), 'Exported HTML should prefix Expo assets for GitHub Pages.');
-    const jsFiles = [];
-    const pending = [path.join(distDir, '_expo')];
-    while (pending.length) {
-      const current = pending.pop();
-      if (!fs.existsSync(current)) continue;
-      for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
-        const entryPath = path.join(current, entry.name);
-        if (entry.isDirectory()) pending.push(entryPath);
-        if (entry.isFile() && entry.name.endsWith('.js')) jsFiles.push(entryPath);
-      }
-    }
-    const bundle = jsFiles.map(read).join('\n');
-    assert(bundle.includes(`"${basePath}"`), 'Expo Router bundle should include the GitHub Pages base path.');
+for (const rel of checkFiles) {
+  const content = read(path.join(root, rel)).toLowerCase();
+  for (const needle of blockedNeedles) {
+    assert(!content.includes(needle), `${rel} should not include ${needle}.`);
   }
 }
 
-console.log('PWA manifest, icons, service worker, and export fallback look good.');
+for (const script of Object.values(pkg.scripts || {})) {
+  const lower = script.toLowerCase();
+  for (const needle of blockedNeedles) {
+    assert(!lower.includes(needle), `Script should not include ${needle}: ${script}`);
+  }
+}
+
+for (const name of Object.keys(pkg.dependencies || {})) {
+  for (const needle of blockedNeedles) {
+    assert(!name.toLowerCase().includes(needle), `Dependency should not include ${needle}: ${name}`);
+  }
+}
+
+console.log('Static PWA, manifest, service worker, and Capacitor webDir look good.');
