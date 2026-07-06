@@ -1,4 +1,4 @@
-name: Deploy PWA to GitHub Pages
+name: Deploy PWA from www to GitHub Pages
 
 on:
   push:
@@ -35,6 +35,13 @@ jobs:
 
       - name: Check PWA assets
         run: npm run check:pwa
+
+      - name: Confirm Pages artifact root
+        run: |
+          test -f www/index.html
+          test -f www/manifest.webmanifest
+          test -f www/sw.js
+          test -f www/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

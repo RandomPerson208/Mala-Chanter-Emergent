@@ -17,8 +17,10 @@ const manifestPath = path.join(webDir, 'manifest.webmanifest');
 const swPath = path.join(webDir, 'sw.js');
 const cssPath = path.join(webDir, 'styles.css');
 const jsPath = path.join(webDir, 'app.js');
+const nojekyllPath = path.join(webDir, '.nojekyll');
+const workflowPath = path.join(root, '.github/workflows/deploy-pages.yml');
 
-for (const file of [htmlPath, manifestPath, swPath, cssPath, jsPath]) {
+for (const file of [htmlPath, manifestPath, swPath, cssPath, jsPath, nojekyllPath, workflowPath]) {
   assert(fs.existsSync(file), `Missing ${path.relative(root, file)}.`);
 }
 
@@ -27,12 +29,20 @@ const manifest = JSON.parse(read(manifestPath));
 const sw = read(swPath);
 const app = read(jsPath);
 const pkg = JSON.parse(read(path.join(root, 'package.json')));
+const workflow = read(workflowPath);
 
 assert(manifest.name === 'ZenMala', 'Manifest name should be ZenMala.');
 assert(manifest.display === 'standalone', 'Manifest display should be standalone.');
+assert(
+  Array.isArray(manifest.display_override) && manifest.display_override.includes('fullscreen'),
+  'Manifest should include fullscreen display_override for installed app chrome.'
+);
 assert(manifest.start_url === './', 'Manifest start_url should stay relative for GitHub Pages.');
 assert(manifest.scope === './', 'Manifest scope should stay relative for GitHub Pages.');
 assert(html.includes('manifest.webmanifest'), 'HTML should link the web manifest.');
+assert(html.includes('mobile-web-app-capable'), 'HTML should enable Android home-screen app mode.');
+assert(html.includes('apple-mobile-web-app-capable'), 'HTML should enable iOS home-screen app mode.');
+assert(html.includes('apple-mobile-web-app-status-bar-style'), 'HTML should set iOS installed-app status bar style.');
 assert(html.includes('./styles.css'), 'HTML should load styles.css.');
 assert(html.includes('./app.js'), 'HTML should load app.js.');
 assert(sw.includes('CACHE_NAME'), 'Service worker should define a cache name.');
@@ -42,6 +52,8 @@ assert(sw.includes('./styles.css'), 'Service worker should cache styles.css.');
 assert(sw.includes('./app.js'), 'Service worker should cache app.js.');
 assert(app.includes('localStorage'), 'App should persist local practice data.');
 assert(app.includes('serviceWorker'), 'App should register the service worker.');
+assert(workflow.includes('path: www'), 'GitHub Pages workflow should deploy www/.');
+assert(workflow.includes('www/.nojekyll'), 'GitHub Pages workflow should require www/.nojekyll.');
 new Function(sw);
 new Function(app);
 

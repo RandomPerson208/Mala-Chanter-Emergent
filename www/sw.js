@@ -1,4 +1,4 @@
-const CACHE_NAME = "zenmala-static-v1";
+const CACHE_NAME = "zenmala-static-v2";
 const ASSETS = [
   "./",
   "./index.html",

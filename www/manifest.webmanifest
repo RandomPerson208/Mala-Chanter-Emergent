@@ -2,12 +2,16 @@
   "name": "ZenMala",
   "short_name": "ZenMala",
   "description": "Offline mala counter for mantra practice.",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
   "orientation": "portrait",
   "background_color": "#141311",
   "theme_color": "#141311",
+  "categories": ["health", "lifestyle"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "./icon-192.png",

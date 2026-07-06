@@ -16,6 +16,7 @@ npm run check:pwa
 ```
 
 The installable web app lives in `www/`.
+GitHub Pages deploys `www/` directly through `.github/workflows/deploy-pages.yml`.
 
 ## Capacitor
 
